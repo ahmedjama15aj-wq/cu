@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Basic profile information for all users (customers, practitioners, admins).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique identifier for the user." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "displayName": { "type": "string", "description": "User's full name." },
+        "role": { "type": "string", "enum": ["customer", "practitioner", "admin"], "description": "User's role in the platform." },
+        "photoURL": { "type": "string", "format": "uri", "description": "URL to the user's profile picture." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the profile was created." },
+        "bio": { "type": "string", "description": "Practitioner's biography." },
+        "specialties": { "type": "array", "items": { "type": "string" }, "description": "List of cupping specialties." },
+        "pricePerSession": { "type": "number", "description": "Practitioner's price per session." },
+        "currency": { "type": "string", "description": "Currency code (e.g., USD)." },
+        "rating": { "type": "number", "description": "Average rating for the practitioner." },
+        "totalSessions": { "type": "number", "description": "Total number of sessions completed." },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "address": { "type": "string" }
+          }
+        },
+        "availability": { "type": "array", "items": { "type": "string" }, "description": "Available days of the week." },
+        "verificationStatus": { "type": "string", "enum": ["pending", "verified", "rejected"], "description": "Practitioner's verification status." },
+        "stripeAccountId": { "type": "string", "description": "Stripe Connect account ID." }
+      },
+      "required": ["uid", "email", "displayName", "role", "createdAt"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Details of a cupping session booking.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "practitionerId": { "type": "string" },
+        "practitionerName": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
+        "completionVerifiedByAdmin": { "type": "boolean", "description": "Whether the admin has verified session completion." },
+        "completionProof": { "type": "string", "description": "Proof of completion (e.g., photo URL or note)." },
+        "completionTimestamp": { "type": "string", "format": "date-time" },
+        "amount": { "type": "number" },
+        "commission": { "type": "number" },
+        "practitionerEarnings": { "type": "number" },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "reminders": {
+          "type": "object",
+          "properties": {
+            "twentyFourHour": { "type": "boolean" },
+            "oneHour": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["id", "customerId", "customerName", "practitionerId", "practitionerName", "status", "amount", "date", "time", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single chat message.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "senderId", "senderName", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents indexed by UID."
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Booking documents."
+    },
+    "/conversations/{conversationId}": {
+      "schema": "object",
+      "description": "Conversation metadata."
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages within a conversation."
+    }
+  }
+}

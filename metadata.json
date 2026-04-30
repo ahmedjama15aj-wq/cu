@@ -1,0 +1,8 @@
+{
+  "name": "Google AI Studio",
+  "description": "A worldwide platform connecting Al Hijamah (Cupping Therapy) practitioners with customers. Features an 'Organic Connection' brand identity, real-time provider discovery, and secure online payments.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
