@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { DollarSign, TrendingUp, Users, Calendar, Check, X, Clock, Heart, Activity } from 'lucide-react';
 import { Booking } from '../types';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
 
 const MOCK_BOOKINGS: Booking[] = [
@@ -23,12 +23,13 @@ export const PractitionerDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleStatusUpdate = async (id: string, status: Booking['status']) => {
+    const path = `bookings/${id}`;
     try {
       if (id.length > 5) { // Likely a real Firestore ID
         await updateDoc(doc(db, 'bookings', id), { status });
       }
     } catch (error) {
-      console.error('Failed to update booking status in Firestore:', error);
+      handleFirestoreError(error, OperationType.WRITE, path);
     }
     setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
     
@@ -67,12 +68,13 @@ export const PractitionerDashboard: React.FC = () => {
         completionVerifiedByAdmin: false
       };
 
+      const path = `bookings/${id}`;
       try {
         if (id.length > 5) {
           await updateDoc(doc(db, 'bookings', id), completionData);
         }
       } catch (error) {
-        console.error('Failed to mark booking as done in Firestore:', error);
+        handleFirestoreError(error, OperationType.WRITE, path);
       }
 
       setBookings(prev => prev.map(b => b.id === id ? { ...b, ...completionData } : b));

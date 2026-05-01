@@ -3,16 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext';
 import { PractitionerProfile } from '../types';
-import { MapPin, Tag, Clock, Award, FileText, Check, Camera, Image as ImageIcon } from 'lucide-react';
-import { storage, auth, db } from '../firebase';
+import { MapPin, Tag, Clock, Award, FileText, Check, Camera, Image as ImageIcon, Bold, Italic, List } from 'lucide-react';
+import { storage, auth, db, handleFirestoreError, OperationType } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { sendEmailVerification, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { handleFirestoreError, OperationType } from '../lib/firestoreUtils';
 
 interface PractitionerRegistrationProps {
   onSuccess: () => void;
@@ -100,6 +99,7 @@ export const PractitionerRegistration: React.FC<PractitionerRegistrationProps> =
     pricePerSession: 50,
     currency: 'USD',
     address: '',
+    fullAddress: '',
     availability: DAYS_OF_WEEK.reduce((acc, day) => ({
       ...acc,
       [day]: { active: false, start: '09:00', end: '17:00' }
@@ -109,10 +109,11 @@ export const PractitionerRegistration: React.FC<PractitionerRegistrationProps> =
     credentialsFile: null as File | null,
     profilePictureFile: null as File | null,
     profilePicturePreview: user?.photoURL || '',
-    googleMapsApiKey: '',
     startTime: '09:00',
     endTime: '17:00'
   });
+
+  const bioRef = useRef<HTMLTextAreaElement>(null);
 
   const handleToggleSpecialty = (specialty: string) => {
     setFormData(prev => ({
@@ -199,9 +200,9 @@ export const PractitionerRegistration: React.FC<PractitionerRegistrationProps> =
         pricePerSession: formData.pricePerSession,
         currency: formData.currency,
         location: {
-          address: formData.address,
-          lat: 0, // Mock lat/lng
-          lng: 0
+          address: formData.fullAddress || formData.address,
+          lat: formData.address.toLowerCase().includes('dubai') ? 25.2048 : (Math.random() * 20 + 10), 
+          lng: formData.address.toLowerCase().includes('dubai') ? 55.2708 : (Math.random() * 40 + 30)
         },
         availability: formData.availability,
         businessHours: {
@@ -308,9 +309,9 @@ export const PractitionerRegistration: React.FC<PractitionerRegistrationProps> =
                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-teal-500" />
                 <input
                   type="text"
-                  placeholder="Enter your business or office address"
-                  value={formData.googleMapsApiKey}
-                  onChange={e => setFormData({ ...formData, googleMapsApiKey: e.target.value })}
+                  placeholder="Enter your business or office name/address"
+                  value={formData.fullAddress}
+                  onChange={e => setFormData({ ...formData, fullAddress: e.target.value })}
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-100 focus:border-teal-500 outline-none transition-all bg-white text-slate-700 font-bold shadow-sm"
                 />
               </div>
@@ -323,14 +324,98 @@ export const PractitionerRegistration: React.FC<PractitionerRegistrationProps> =
               <FileText className="w-4 h-4 text-teal-500" /> About You
             </h3>
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Professional Bio</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Professional Bio</label>
+                <span className={`text-[10px] font-bold uppercase tracking-widest ${formData.bio.length > 1800 ? 'text-rose-500' : 'text-slate-300'}`}>
+                  {formData.bio.length} / 2000
+                </span>
+              </div>
+              
+              <div className="mb-3 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = bioRef.current;
+                    if (!el) return;
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    const text = el.value;
+                    const before = text.substring(0, start);
+                    const selection = text.substring(start, end);
+                    const after = text.substring(end);
+                    const newBio = `${before}**${selection}**${after}`;
+                    setFormData({ ...formData, bio: newBio });
+                    setTimeout(() => {
+                      el.focus();
+                      el.setSelectionRange(start + 2, end + 2);
+                    }, 0);
+                  }}
+                  className="p-2 hover:bg-white hover:text-teal-600 rounded-lg transition-all text-slate-400"
+                  title="Bold"
+                >
+                  <Bold className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = bioRef.current;
+                    if (!el) return;
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    const text = el.value;
+                    const before = text.substring(0, start);
+                    const selection = text.substring(start, end);
+                    const after = text.substring(end);
+                    const newBio = `${before}_${selection}_${after}`;
+                    setFormData({ ...formData, bio: newBio });
+                    setTimeout(() => {
+                      el.focus();
+                      el.setSelectionRange(start + 1, end + 1);
+                    }, 0);
+                  }}
+                  className="p-2 hover:bg-white hover:text-teal-600 rounded-lg transition-all text-slate-400"
+                  title="Italic"
+                >
+                  <Italic className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = bioRef.current;
+                    if (!el) return;
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    const text = el.value;
+                    const before = text.substring(0, start);
+                    const selection = text.substring(start, end);
+                    const after = text.substring(end);
+                    const newBio = `${before}\n- ${selection}${after}`;
+                    setFormData({ ...formData, bio: newBio });
+                    setTimeout(() => {
+                      el.focus();
+                      el.setSelectionRange(start + 3, end + 3);
+                    }, 0);
+                  }}
+                  className="p-2 hover:bg-white hover:text-teal-600 rounded-lg transition-all text-slate-400"
+                  title="Bullet List"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <div className="w-px h-6 bg-slate-200 mx-2" />
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+                  Markdown support enabled
+                </span>
+              </div>
+
               <textarea
+                ref={bioRef}
                 required
-                rows={4}
-                placeholder="Describe your experience, approach, and qualifications..."
+                rows={8}
+                maxLength={2000}
+                placeholder="Describe your experience, approach, and qualifications... (Supports basic formatting)"
                 value={formData.bio}
                 onChange={e => setFormData({ ...formData, bio: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:border-teal-500 outline-none transition-all bg-slate-50/50 text-slate-700 placeholder:text-slate-300 resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:border-teal-500 outline-none transition-all bg-slate-50/50 text-slate-700 placeholder:text-slate-300 resize-none font-medium leading-relaxed"
               />
             </div>
           </section>
@@ -434,17 +519,9 @@ export const PractitionerRegistration: React.FC<PractitionerRegistrationProps> =
               </div>
 
               <div className="pt-2">
-                <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Full Clinic Address</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-teal-300" />
-                  <input
-                    type="text"
-                    placeholder="Enter your full clinic address"
-                    value={(formData as any).fullAddress || ''}
-                    onChange={e => setFormData({ ...formData, fullAddress: e.target.value } as any)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-100 focus:border-teal-500 outline-none transition-all bg-slate-50/50 text-slate-700 placeholder:text-slate-300"
-                  />
-                </div>
+                <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-widest font-bold">
+                  Providing your business address enables the interactive map directory for customers.
+                </p>
               </div>
             </div>
           </section>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, where, getDocs, setDoc, doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../AuthContext';
 import { PractitionerProfile } from '../types';
 import { Check, X, FileText, DollarSign, Clock, Building, ArrowUpRight, Info, Lock, MessageSquare } from 'lucide-react';
@@ -43,8 +43,9 @@ export const AdminDashboard: React.FC = () => {
     };
 
     const fetchPending = async () => {
+      const path = 'users';
       try {
-        const q = query(collection(db, 'users'), where('verificationStatus', '==', 'pending'));
+        const q = query(collection(db, path), where('verificationStatus', '==', 'pending'));
         const querySnapshot = await getDocs(q);
         const firestorePractitioners = querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as PractitionerProfile));
         
@@ -71,14 +72,19 @@ export const AdminDashboard: React.FC = () => {
         } as PractitionerProfile;
 
         const allPending = [...firestorePractitioners];
-        const mockDoc = await getDoc(doc(db, 'users', mockPending.uid));
-        if (!mockDoc.exists() && !allPending.find(p => p.uid === mockPending.uid)) {
-          allPending.push(mockPending);
+        const mockDocPath = `users/${mockPending.uid}`;
+        try {
+          const mockDoc = await getDoc(doc(db, 'users', mockPending.uid));
+          if (!mockDoc.exists() && !allPending.find(p => p.uid === mockPending.uid)) {
+            allPending.push(mockPending);
+          }
+        } catch (error) {
+          handleFirestoreError(error, OperationType.GET, mockDocPath);
         }
 
         setPendingPractitioners(allPending);
       } catch (error) {
-        console.error("Error fetching practitioners", error);
+        handleFirestoreError(error, OperationType.LIST, path);
       }
     };
     
@@ -109,13 +115,14 @@ export const AdminDashboard: React.FC = () => {
     };
 
     const fetchCompletedBookings = async () => {
+      const path = 'bookings';
       try {
-        const q = query(collection(db, 'bookings'), where('status', '==', 'completed'));
+        const q = query(collection(db, path), where('status', '==', 'completed'));
         const querySnapshot = await getDocs(q);
         const bookings = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
         setCompletedBookings(bookings);
       } catch (error) {
-        console.error("Error fetching completed bookings:", error);
+        handleFirestoreError(error, OperationType.LIST, path);
       }
     };
 
@@ -123,6 +130,7 @@ export const AdminDashboard: React.FC = () => {
   }, []);
 
   const handleVerifyCompletion = async (id: string) => {
+    const path = `bookings/${id}`;
     try {
       await setDoc(doc(db, 'bookings', id), { 
         completionVerifiedByAdmin: true 
@@ -131,12 +139,13 @@ export const AdminDashboard: React.FC = () => {
       setCompletedBookings(prev => prev.map(b => b.id === id ? { ...b, completionVerifiedByAdmin: true } : b));
       alert("Session completion verified!");
     } catch (error) {
-      console.error("Error verifying completion:", error);
+      handleFirestoreError(error, OperationType.WRITE, path);
       alert("Failed to verify completion.");
     }
   };
 
   const handleVerify = async (uid: string, status: 'verified' | 'rejected') => {
+    const path = `users/${uid}`;
     try {
       const practitioner = pendingPractitioners.find(p => p.uid === uid);
       if (!practitioner) return;
@@ -157,7 +166,7 @@ export const AdminDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Error updating verification status:", error);
+      handleFirestoreError(error, OperationType.WRITE, path);
       alert("Failed to update verification status.");
     }
   };

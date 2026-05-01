@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from './types';
-import { auth, db } from './firebase';
+import { auth, db, handleFirestoreError, OperationType } from './firebase';
 import { 
   onAuthStateChanged, 
   signInWithPopup, 
@@ -14,7 +14,6 @@ import {
   User
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { handleFirestoreError, OperationType } from './lib/firestoreUtils';
 
 interface AuthContextType {
   user: UserProfile | null;

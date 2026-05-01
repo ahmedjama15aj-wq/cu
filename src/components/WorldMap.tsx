@@ -16,9 +16,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { PractitionerProfile } from '../types';
 import { MapPin, List, Star, Compass, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { RollingLocations } from './RollingLocations';
+import { AppCheckIntegrator } from './AppCheckIntegrator';
+import { GOOGLE_MAPS_CONFIG } from '../constants';
 
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
-const mapId = '6f86c2e7a0e38600'; // Modern map style ID (placeholder or shared)
+const apiKey = GOOGLE_MAPS_CONFIG.apiKey;
+const mapId = GOOGLE_MAPS_CONFIG.mapId;
 
 interface Props {
   practitioners: PractitionerProfile[];
@@ -87,15 +89,28 @@ export const WorldMap: React.FC<Props> = ({ practitioners, onSelectPractitioner,
     return (
       <div className={`flex flex-col gap-6 ${className}`}>
         <div className="relative w-full h-[600px] bg-[#18181B] rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center text-center p-8 border-2 border-[#F97316]/20">
-          <div className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mb-6 border border-[#F97316]/30">
-            <MapPin className="w-10 h-10 text-[#F97316]" />
-          </div>
-          <h3 className="text-2xl font-black text-[#FFF7ED] uppercase tracking-tighter mb-4">Business address required</h3>
-          <p className="text-[#FFF7ED]/60 max-w-md text-sm leading-relaxed mb-6 font-medium">
-            To enable the ultra-updated interactive map experience, please ensure your clinic or business address is provided in your profile.
-          </p>
-          <div className="bg-[#F97316] text-[#18181B] px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#F97316]/20">
-            Map Directory Coming Soon
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.scrollTo({ top: 1000, behavior: 'smooth' })}
+            className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mb-6 border border-[#F97316]/30 cursor-pointer"
+          >
+            <Compass className="w-10 h-10 text-[#F97316]" />
+          </motion.button>
+          <h3 className="text-2xl font-black text-[#FFF7ED] uppercase tracking-tighter mb-4">Discovery Map</h3>
+          <div className="bg-[#18181B]/80 backdrop-blur-xl p-8 rounded-[2.5rem] border border-[#F97316]/30 max-w-lg shadow-2xl">
+            <p className="text-[#FFF7ED] text-base leading-relaxed mb-6 font-bold">
+              Zoom and pan to find Hijamah practitioners worldwide. Each marker represents a certified specialist ready to serve you.
+            </p>
+            <p className="text-[#F97316] text-xs font-black uppercase tracking-[0.2em] mb-8">
+              Interactive Map Experience
+            </p>
+            <button 
+              onClick={() => window.scrollTo({ top: 1200, behavior: 'smooth' })}
+              className="w-full bg-[#F97316] text-[#18181B] px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-[#F97316]/20 hover:bg-[#FFF7ED] transition-all"
+            >
+              Explore Near You
+            </button>
           </div>
         </div>
       </div>
@@ -105,6 +120,7 @@ export const WorldMap: React.FC<Props> = ({ practitioners, onSelectPractitioner,
   return (
     <div className={`flex flex-col gap-6 ${className}`}>
       <APIProvider apiKey={apiKey}>
+        <AppCheckIntegrator />
         <div className="relative w-full h-[700px] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-[#18181B] group bg-[#FFF7ED]">
           <RollingLocations />
           
@@ -200,10 +216,15 @@ export const WorldMap: React.FC<Props> = ({ practitioners, onSelectPractitioner,
           </Map>
 
           <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end pointer-events-none flex-col md:flex-row gap-6">
-            <div className="bg-[#18181B]/90 backdrop-blur-2xl p-7 rounded-[2.5rem] shadow-2xl border border-[#F97316]/20 max-w-sm pointer-events-auto">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowList(!showList)}
+              className="bg-[#18181B]/95 backdrop-blur-2xl p-7 rounded-[2.5rem] shadow-2xl border border-[#F97316]/20 max-w-sm pointer-events-auto text-left group cursor-pointer"
+            >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-[#F97316]/10 rounded-xl">
-                  <Maximize className="w-5 h-5 text-[#F97316]" />
+                <div className="p-2.5 bg-[#F97316]/10 rounded-xl group-hover:bg-[#F97316] group-hover:text-[#18181B] transition-all">
+                  <Maximize className="w-5 h-5 text-[#F97316] group-hover:text-[#18181B]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-black text-[#FFF7ED] uppercase tracking-tighter">Discovery Hub</h4>
@@ -214,7 +235,7 @@ export const WorldMap: React.FC<Props> = ({ practitioners, onSelectPractitioner,
                 Zoom and pan to find Hijamah practitioners worldwide. Each marker represents a certified specialist ready to serve you.
               </p>
               <RecenterButton userLocation={userLocation} />
-            </div>
+            </motion.div>
 
             <ZoomControls />
           </div>

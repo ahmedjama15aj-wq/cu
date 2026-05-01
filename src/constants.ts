@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const COMMISSION_RATE = 0.08; // 8%
+export const GOOGLE_MAPS_CONFIG = {
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCj4wpRl8J06dAP4Z59EPn_1PwcFXlkeyE',
+  mapId: import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'p55qV4KUMlmnmqqKJ5NvZW7sMww',
+  recaptchaSiteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''
+};
 export const COLORS = {
   primary: '#006D77', // Deep Green/Blue
   secondary: '#83C5BE', // Light Blue/Green

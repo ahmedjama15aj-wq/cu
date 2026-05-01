@@ -1,8 +1,16 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, ShieldCheck, HeartPulse } from 'lucide-react';
+import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import { AppCheckIntegrator } from './AppCheckIntegrator';
+
+import { GOOGLE_MAPS_CONFIG } from '../constants';
+
+const GOOGLE_MAPS_API_KEY = GOOGLE_MAPS_CONFIG.apiKey;
+const GOOGLE_MAPS_MAP_ID = GOOGLE_MAPS_CONFIG.mapId;
 
 export const ContactUs: React.FC = () => {
+  const clinicLocation = { lat: 25.2048, lng: 55.2708 }; // Dubai, UAE as a central location for this app
   return (
     <div className="pt-28 pb-20 px-4 max-w-4xl mx-auto">
       <motion.div
@@ -86,6 +94,55 @@ export const ContactUs: React.FC = () => {
                 </div>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Google Maps Integration */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-blue-900 mb-6">Our Headquarters</h2>
+          <div className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-inner border border-blue-100 bg-blue-50/30">
+            {GOOGLE_MAPS_API_KEY ? (
+              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                <AppCheckIntegrator />
+                <Map
+                  defaultCenter={clinicLocation}
+                  defaultZoom={13}
+                  mapId={GOOGLE_MAPS_MAP_ID}
+                  gestureHandling={'greedy'}
+                  disableDefaultUI={true}
+                  className="w-full h-full"
+                >
+                  <AdvancedMarker position={clinicLocation}>
+                    <Pin background={'#10b981'} borderColor={'#ffffff'} glyphColor={'#ffffff'} />
+                  </AdvancedMarker>
+                </Map>
+              </APIProvider>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-blue-50/50">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <MapPin className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-blue-900 mb-2">Interactive Map Preview</h3>
+                <p className="text-gray-600 max-w-sm">
+                  Zoom and pan to explore our clinic locations around the globe.
+                </p>
+              </div>
+            )}
+            
+            <div className="absolute bottom-6 left-6 right-6">
+              <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-blue-50 max-w-md">
+                <div className="flex items-start gap-3">
+                  <div className="bg-green-50 p-2 rounded-xl">
+                    <MapPin className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">Cupping Connect HQ</h4>
+                    <p className="text-sm text-gray-600">Sheikh Zayed Road, Dubai, UAE</p>
+                    <p className="text-xs text-gray-500 mt-1 italic">Main Operations & Practitioner Support Center</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>

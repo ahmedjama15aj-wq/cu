@@ -1,6 +1,7 @@
 import React from 'react';
 import { PractitionerProfile } from '../types';
 import { Check, X, Shield, FileText } from 'lucide-react';
+import Markdown from 'react-markdown';
 
 interface Props {
   practitioners: PractitionerProfile[];
@@ -58,7 +59,9 @@ export const PractitionerVerification: React.FC<Props> = ({ practitioners, onApp
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Bio</p>
-                  <p className="text-sm text-gray-700 line-clamp-3">{practitioner.bio}</p>
+                  <div className="text-sm text-gray-700 line-clamp-3 markdown-body">
+                    <Markdown>{practitioner.bio}</Markdown>
+                  </div>
                 </div>
                 {practitioner.credentialsUrl && (
                   <div className="mb-4">

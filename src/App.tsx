@@ -28,9 +28,9 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { Logo } from './components/Logo';
 import { Star, ArrowUpDown, Filter, Calendar as CalendarIcon, Shield } from 'lucide-react';
 
+import { auth, db, handleFirestoreError, OperationType } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { db } from './firebase';
-import { handleFirestoreError, OperationType } from './lib/firestoreUtils';
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371; // Radius of the earth in km

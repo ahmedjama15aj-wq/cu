@@ -85,11 +85,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, isAuthModalOpen, set
                           onNavigate?.('verification');
                           setIsOpen(false);
                         }}
-                        className="flex items-center gap-2 bg-rose-100 text-rose-600 px-4 py-2 rounded-lg font-semibold hover:bg-rose-200 hover:text-rose-700 transition-all text-sm uppercase tracking-widest cursor-pointer active:scale-95 transform whitespace-nowrap"
+                        className="flex items-center gap-2 bg-rose-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-rose-600 transition-all text-xs uppercase tracking-widest cursor-pointer active:scale-95 transform whitespace-nowrap shadow-lg shadow-rose-200"
                         title="Admin Access"
                       >
                         <Shield className="w-4 h-4" />
-                        <span className="hidden xl:inline">Admin Access</span>
+                        <span className="hidden lg:inline">Admin Access</span>
                       </button>
                     )}
                     <button 

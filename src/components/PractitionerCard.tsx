@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { InfoModal } from './InfoModal';
 import { INFO_CONTENT } from '../constants';
 import { useCurrency } from '../CurrencyContext';
+import Markdown from 'react-markdown';
 
 interface Props {
   practitioner: PractitionerProfile;
@@ -127,7 +128,9 @@ export const PractitionerCard: React.FC<Props> = ({ practitioner, onBook, onMess
           )}
         </div>
       </div>
-      <p className="mt-5 text-slate-600 text-sm leading-relaxed font-serif italic border-l-2 border-teal-100 pl-4">{practitioner.bio}</p>
+      <div className="mt-5 text-slate-600 text-sm leading-relaxed font-serif italic border-l-2 border-teal-100 pl-4 markdown-body">
+        <Markdown>{practitioner.bio}</Markdown>
+      </div>
       
       {!minimal && (
         <div className="mt-4 flex flex-wrap gap-1.5">

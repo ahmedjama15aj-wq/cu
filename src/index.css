@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@layer base {
+  .markdown-body p {
+    margin-bottom: 1em;
+  }
+  .markdown-body strong {
+    font-weight: 700;
+  }
+  .markdown-body em {
+    font-style: italic;
+  }
+  .markdown-body ul {
+    list-style-type: disc;
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+  }
+}
