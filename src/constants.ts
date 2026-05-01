@@ -5,7 +5,7 @@
 
 export const GOOGLE_MAPS_CONFIG = {
   apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCj4wpRl8J06dAP4Z59EPn_1PwcFXlkeyE',
-  mapId: import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'p55qV4KUMlmnmqqKJ5NvZW7sMww',
+  mapId: import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'Tc2ziFiH39qk4AyZmnloWVdSWnA=',
   recaptchaSiteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''
 };
 export const COLORS = {

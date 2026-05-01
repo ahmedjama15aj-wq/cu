@@ -51,8 +51,8 @@ export const ContactUs: React.FC = () => {
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Email Support</h3>
                 <p className="text-gray-800 mb-2">Send us your inquiries and we'll respond within 24 hours.</p>
-                <a href="mailto:supportcuppingconnet@gmail.com" className="text-lg font-bold text-blue-600 hover:text-blue-800 transition-colors">
-                  supportcuppingconnet@gmail.com
+                <a href="mailto:Support@cuppingconnect@gmail.com" className="text-lg font-bold text-blue-600 hover:text-blue-800 transition-colors break-all">
+                  Support@cuppingconnect@gmail.com
                 </a>
               </div>
             </div>
@@ -99,8 +99,7 @@ export const ContactUs: React.FC = () => {
 
         {/* Google Maps Integration */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">Our Headquarters</h2>
-          <div className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-inner border border-blue-100 bg-blue-50/30">
+          <div className="relative w-full h-[500px] rounded-[2rem] overflow-hidden shadow-2xl border border-blue-100 bg-blue-50/30 group">
             {GOOGLE_MAPS_API_KEY ? (
               <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                 <AppCheckIntegrator />
@@ -110,7 +109,7 @@ export const ContactUs: React.FC = () => {
                   mapId={GOOGLE_MAPS_MAP_ID}
                   gestureHandling={'greedy'}
                   disableDefaultUI={true}
-                  className="w-full h-full"
+                  className="w-full h-full grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
                 >
                   <AdvancedMarker position={clinicLocation}>
                     <Pin background={'#10b981'} borderColor={'#ffffff'} glyphColor={'#ffffff'} />
@@ -124,24 +123,36 @@ export const ContactUs: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold text-blue-900 mb-2">Interactive Map Preview</h3>
                 <p className="text-gray-600 max-w-sm">
-                  Zoom and pan to explore our clinic locations around the globe.
+                  Exploring our clinic locations around the globe.
                 </p>
               </div>
             )}
             
-            <div className="absolute bottom-6 left-6 right-6">
-              <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-blue-50 max-w-md">
-                <div className="flex items-start gap-3">
-                  <div className="bg-green-50 p-2 rounded-xl">
-                    <MapPin className="w-5 h-5 text-green-600" />
+            {/* Clickable Info Box */}
+            <div className="absolute bottom-6 left-6 right-6 flex justify-center">
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=Sheikh+Zayed+Road+Dubai+UAE" 
+                target="_blank" 
+                rel="no-referrer"
+                className="bg-white/90 backdrop-blur-xl p-5 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/50 w-full max-w-md hover:scale-[1.02] hover:bg-white transition-all duration-300 group"
+              >
+                <div className="flex items-center gap-4 text-left">
+                  <div className="bg-teal-600 p-3 rounded-xl shadow-lg ring-2 ring-teal-100 shrink-0 group-hover:rotate-12 transition-transform">
+                    <MapPin className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">Cupping Connect HQ</h4>
-                    <p className="text-sm text-gray-600">Sheikh Zayed Road, Dubai, UAE</p>
-                    <p className="text-xs text-gray-500 mt-1 italic">Main Operations & Practitioner Support Center</p>
+                  <div className="flex-1">
+                    <h4 className="text-xl font-serif font-black text-slate-900 leading-tight">Cupping Connect</h4>
+                    <p className="text-sm text-slate-600 font-medium">Sheikh Zayed Road, Dubai, UAE</p>
+                    <div className="mt-1 inline-block py-0.5 px-2 bg-teal-50 text-teal-700 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                      Main Support Center
+                    </div>
                   </div>
                 </div>
-              </div>
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-teal-600 font-black text-[10px] uppercase tracking-[0.2em] group-hover:gap-4 transition-all">
+                  <span>Open in Google Maps</span>
+                  <span className="text-base">→</span>
+                </div>
+              </a>
             </div>
           </div>
         </div>

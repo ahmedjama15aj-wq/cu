@@ -80,7 +80,7 @@ export const PrivacyPolicy: React.FC = () => {
           <section>
             <h2 className="text-2xl font-semibold text-zinc-900 mb-3">8. Contact Us</h2>
             <p>
-              If you have any questions about this Privacy Policy, please contact us through the support channels provided on our platform.
+              If you have any questions about this Privacy Policy, please contact us at: <a href="mailto:Support@cuppingconnect@gmail.com" className="text-teal-600 font-bold hover:underline">Support@cuppingconnect@gmail.com</a>
             </p>
           </section>
         </div>

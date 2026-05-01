@@ -68,6 +68,12 @@ export const TermsOfService: React.FC = () => {
               We reserve the right to modify these Terms of Service at any time. Continued use of the platform after changes constitutes acceptance of the new terms.
             </p>
           </section>
+          <section>
+            <h2 className="text-2xl font-semibold text-zinc-900 mb-3">9. Contact Support</h2>
+            <p>
+              For any questions regarding these Terms of Service, please contact our support team at: <a href="mailto:Support@cuppingconnect@gmail.com" className="text-teal-600 font-bold hover:underline">Support@cuppingconnect@gmail.com</a>
+            </p>
+          </section>
         </div>
       </div>
     </div>

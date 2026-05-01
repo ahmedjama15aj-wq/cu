@@ -301,7 +301,7 @@ export default function App() {
   }, [practitioners]);
 
   // Expose onMessage to window for PractitionerCard access
-  const handleMessage = React.useCallback((p: PractitionerProfile, initialMessage?: string) => {
+  const handleMessage = React.useCallback(async (p: PractitionerProfile, initialMessage?: string) => {
     if (!user) {
       alert('Please login to message practitioners.');
       setIsAuthModalOpen(true);
@@ -310,16 +310,24 @@ export default function App() {
     
     if (initialMessage) {
       const roomId = [user.uid, p.uid].sort().join('_');
-      fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomId,
-          message: initialMessage,
+      try {
+        const { addDoc, setDoc, doc } = await import('firebase/firestore');
+        const messagesRef = collection(db, 'conversations', roomId, 'messages');
+        await addDoc(messagesRef, {
+          text: initialMessage,
           senderId: user.uid,
-          senderName: user.displayName || 'User'
-        })
-      }).catch(err => console.error('Failed to send initial message:', err));
+          senderName: user.displayName || 'User',
+          createdAt: new Date().toISOString()
+        });
+        
+        const convRef = doc(db, 'conversations', roomId);
+        await setDoc(convRef, {
+          lastUpdated: new Date().toISOString(),
+          participants: roomId.split('_')
+        }, { merge: true });
+      } catch (err) {
+        console.error('Failed to send initial message:', err);
+      }
     }
     
     setChatPractitioner(p);

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
 import { Send, X, MessageSquare, User, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../AuthContext';
 import { PractitionerProfile } from '../types';
+import { collection, query, orderBy, onSnapshot, addDoc, setDoc, doc } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 
 interface Message {
   id: string;
@@ -22,48 +23,59 @@ export const Chat: React.FC<Props> = ({ practitioner, onClose }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [socket, setSocket] = useState<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const roomId = [user?.uid, practitioner.uid].sort().join('_');
 
   useEffect(() => {
     setMessages([]); // Clear messages when room changes
-    const newSocket = io(window.location.origin);
-    setSocket(newSocket);
+    if (!user || !roomId) return;
 
-    newSocket.emit('join_room', roomId);
+    const messagesRef = collection(db, 'conversations', roomId, 'messages');
+    const q = query(messagesRef, orderBy('createdAt', 'asc'));
 
-    newSocket.on('receive_message', (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    newSocket.on('load_messages', (loadedMessages: Message[]) => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const loadedMessages = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      })) as Message[];
       setMessages(loadedMessages);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, `conversations/${roomId}/messages`);
     });
 
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [roomId]);
+    return () => unsubscribe();
+  }, [roomId, user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || !socket || !user) return;
+    if (!inputText.trim() || !user) return;
 
     const messageData = {
-      roomId,
-      message: inputText,
+      text: inputText,
       senderId: user.uid,
-      senderName: user.displayName || 'Anonymous User'
+      senderName: user.displayName || 'Anonymous User',
+      createdAt: new Date().toISOString()
     };
-
-    socket.emit('send_message', messageData);
+    
     setInputText('');
+
+    try {
+      const messagesRef = collection(db, 'conversations', roomId, 'messages');
+      await addDoc(messagesRef, messageData);
+      
+      const convRef = doc(db, 'conversations', roomId);
+      await setDoc(convRef, {
+        lastUpdated: new Date().toISOString(),
+        participants: roomId.split('_')
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `conversations/${roomId}`);
+    }
   };
 
   return (

@@ -69,17 +69,17 @@ export const Hero: React.FC<{ onFindNearest?: () => void, onSearch?: (location: 
   };
 
   return (
-    <div className="relative pt-32 pb-24 px-4 overflow-hidden min-h-[90vh] flex items-center">
+    <div className="relative pt-32 pb-24 px-4 min-h-screen flex items-center">
       {/* Video Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-slate-950/60 z-10" /> {/* Darker overlay for better readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/20 to-slate-950/40 z-10" />
+      <div className="fixed inset-0 w-full h-[100dvh] -z-10 pointer-events-none bg-slate-950">
+        <div className="absolute inset-0 bg-slate-950/70 z-10" /> {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/30 to-slate-950/60 z-10" />
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover brightness-[0.6]"
+          className="w-full h-full object-cover"
         >
           <source 
             src="https://assets.mixkit.co/videos/preview/mixkit-cupping-therapy-physiotherapist-puts-jars-on-patient-body-40280-large.mp4" 
@@ -128,7 +128,7 @@ export const Hero: React.FC<{ onFindNearest?: () => void, onSearch?: (location: 
               </div>
             </div>
 
-            <div className="relative flex justify-center hidden lg:flex">
+            <div className="relative flex justify-center lg:flex mb-12 lg:mb-0">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}

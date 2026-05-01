@@ -103,14 +103,25 @@ export const AdminDashboard: React.FC = () => {
     };
 
     const fetchConversations = async () => {
+      const path = 'conversations';
       try {
-        const response = await fetch('/api/admin/conversations');
-        if (response.ok) {
-          const data = await response.json();
-          setConversations(data);
-        }
-      } catch (err) {
-        console.error("Error fetching conversations:", err);
+        const convsSnapshot = await getDocs(collection(db, path));
+        const convs = await Promise.all(convsSnapshot.docs.map(async (docSnap) => {
+          const messagesRef = collection(docSnap.ref, 'messages');
+          // No complex orderBy here to avoid missing indices. We sort in memory.
+          const messagesSnapshot = await getDocs(messagesRef);
+          const messages = messagesSnapshot.docs.map(m => ({ id: m.id, ...m.data() } as any));
+          messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          return {
+            id: docSnap.id,
+            ...docSnap.data(),
+            messages
+          };
+        }));
+        setConversations(convs);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.LIST, path);
+        console.error("Error fetching conversations:", error);
       }
     };
 
@@ -469,8 +480,24 @@ export const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-blue-900">Platform Messages Oversight</h2>
               <button 
                 onClick={async () => {
-                  const response = await fetch('/api/admin/conversations');
-                  if (response.ok) setConversations(await response.json());
+                  const path = 'conversations';
+                  try {
+                    const convsSnapshot = await getDocs(collection(db, path));
+                    const convs = await Promise.all(convsSnapshot.docs.map(async (docSnap) => {
+                      const messagesRef = collection(docSnap.ref, 'messages');
+                      const messagesSnapshot = await getDocs(messagesRef);
+                      const messages = messagesSnapshot.docs.map(m => ({ id: m.id, ...m.data() } as any));
+                      messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                      return {
+                        id: docSnap.id,
+                        ...docSnap.data(),
+                        messages
+                      };
+                    }));
+                    setConversations(convs);
+                  } catch (error) {
+                    handleFirestoreError(error, OperationType.LIST, path);
+                  }
                 }}
                 className="bg-white border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-blue-900 hover:bg-gray-50 flex items-center gap-2"
               >
